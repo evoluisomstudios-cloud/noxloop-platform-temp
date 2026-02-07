@@ -16,7 +16,9 @@ import {
   FileText,
   Sparkles,
   Loader2,
-  CheckCircle
+  CheckCircle,
+  Image as ImageIcon,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 
