@@ -65,16 +65,19 @@ export const useAuth = () => {
   return { user, loading, login, logout, refreshUser };
 };
 
-// Protected Route
-const ProtectedRoute = ({ children, user, loading }) => {
+// Protected Route with optional admin check
+const ProtectedRoute = ({ children, user, loading, requireAdmin = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth", { replace: true, state: { from: location } });
+    } else if (!loading && user && requireAdmin && !user.is_admin) {
+      // Non-admin trying to access admin route
+      navigate("/dashboard", { replace: true });
     }
-  }, [user, loading, navigate, location]);
+  }, [user, loading, navigate, location, requireAdmin]);
 
   if (loading) {
     return (
@@ -88,6 +91,7 @@ const ProtectedRoute = ({ children, user, loading }) => {
   }
 
   if (!user) return null;
+  if (requireAdmin && !user.is_admin) return null;
   return children;
 };
 
