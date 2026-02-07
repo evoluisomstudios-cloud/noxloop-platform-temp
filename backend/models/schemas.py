@@ -238,7 +238,7 @@ class MediaAssetCreate(BaseModel):
 class MediaAssetResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
     asset_id: str
-    workspace_id: str
+    workspace_id: Optional[str] = None
     owner_id: str
     filename: str
     original_filename: str
@@ -248,10 +248,6 @@ class MediaAssetResponse(BaseModel):
     url: str
     secure_url: str
     created_at: str
-
-    status: str  # pending, completed, failed
-    purchased_at: str
-    access_granted: bool = False
 
 
 # ==================== USAGE MODELS ====================
