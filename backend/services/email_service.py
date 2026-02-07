@@ -187,6 +187,38 @@ class EmailService:
             f"Payment confirmed! {plan_name} plan - €{amount:.2f}. {credits} credits added. Transaction: {transaction_id}"
         )
     
+
+    async def send_purchase_confirmation(self, to_email: str, name: str, product_title: str, amount: float, download_url: str = None) -> bool:
+        """Send purchase confirmation email"""
+        download_section = ""
+        if download_url:
+            download_section = f'<p><a href="{download_url}" class="btn">Download Your Product</a></p>'
+        
+        content = f"""
+<h1>Compra Confirmada!</h1>
+<p>Olá {name},</p>
+
+<p>A tua compra foi processada com sucesso:</p>
+
+<div class="highlight">
+    <strong>Produto:</strong> {product_title}<br>
+    <strong>Valor:</strong> €{amount:.2f}
+</div>
+
+{download_section}
+
+<p>O teu produto está agora disponível no teu dashboard.</p>
+<p><a href="{APP_URL}/purchases/my" class="btn">Ver Minhas Compras</a></p>
+
+<p>Obrigado por escolheres NOXLOOP!</p>
+"""
+        return self._send_email(
+            to_email,
+            f"Compra Confirmada: {product_title}",
+            self._base_template(content),
+            f"Compra confirmada: {product_title} - €{amount:.2f}. Acede ao teu produto em {APP_URL}/purchases/my"
+        )
+
     async def send_password_reset_email(self, to_email: str, name: str, reset_token: str) -> bool:
         """Send password reset email"""
         reset_url = f"{APP_URL}/reset-password?token={reset_token}"
