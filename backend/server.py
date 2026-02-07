@@ -74,6 +74,18 @@ app = FastAPI(
     version="2.0.0"
 )
 
+
+
+# Helper function to generate slug
+def generate_slug(title: str) -> str:
+    """Generate URL-friendly slug from title"""
+    slug = title.lower()
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'\s+', '-', slug)
+    slug = re.sub(r'-+', '-', slug)
+    slug = slug.strip('-')
+    return slug[:50]  # Max 50 chars
+
 api_router = APIRouter(prefix="/api")
 admin_router = APIRouter(prefix="/api/admin")
 

@@ -118,6 +118,7 @@ class ProductResponse(BaseModel):
     price: float = 0.0
     status: str = "draft"
     is_published: bool = False
+    slug: Optional[str] = None
     public_url: Optional[str] = None
     landing_page: Optional[Dict[str, Any]] = None
     downloads: int = 0
