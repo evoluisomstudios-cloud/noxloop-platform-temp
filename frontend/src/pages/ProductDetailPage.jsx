@@ -233,6 +233,7 @@ export const ProductDetailPage = ({ user, onLogout }) => {
           <TabsList className="bg-[#0A0A0A] border border-[#262626]">
             <TabsTrigger value="details" data-testid="tab-details">Detalhes</TabsTrigger>
             <TabsTrigger value="content" data-testid="tab-content">Conteúdo</TabsTrigger>
+            {user?.is_admin && <TabsTrigger value="media" data-testid="tab-media">Media</TabsTrigger>}
             <TabsTrigger value="landing" data-testid="tab-landing">Landing Page</TabsTrigger>
           </TabsList>
 
