@@ -94,6 +94,8 @@ export const PublicProductPage = () => {
   }
 
   const landing = product.landing_page || {};
+  const primaryImageId = product.media_asset_ids?.[0];
+  const primaryImageUrl = primaryImageId ? `${API}/media/${primaryImageId}` : null;
 
   return (
     <div className="min-h-screen bg-[#050505]" data-testid="public-product-page">
