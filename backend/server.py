@@ -1827,6 +1827,26 @@ async def legacy_analytics(user: dict = Depends(get_current_user)):
         "sales_by_day": []
     }
 
+# ==================== PUBLIC MEDIA ENDPOINT ====================
+
+@api_router.get("/media/{asset_id}")
+async def get_media_file(asset_id: str):
+    """Serve media file by asset_id - Public endpoint"""
+    asset = await db.media_assets.find_one({"asset_id": asset_id}, {"_id": 0})
+    if not asset:
+        raise HTTPException(status_code=404, detail="Media not found")
+    
+    file_path = UPLOAD_DIR / asset["filename"]
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on disk")
+    
+    return FileResponse(
+        path=str(file_path),
+        media_type=asset.get("mime_type", "application/octet-stream"),
+        filename=asset.get("original_filename", asset["filename"])
+    )
+
+
 # ==================== APP SETUP ====================
 
 app.include_router(api_router)
