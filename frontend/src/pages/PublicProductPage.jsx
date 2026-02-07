@@ -102,7 +102,7 @@ export const PublicProductPage = () => {
             <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
               <Zap className="w-4 h-4 text-black" />
             </div>
-            <span className="font-bold">DigiForge</span>
+            <span className="font-bold">NOXLOOP</span>
           </div>
           <Button 
             onClick={() => document.getElementById("buy-section")?.scrollIntoView({ behavior: "smooth" })}
@@ -273,7 +273,7 @@ export const PublicProductPage = () => {
       {/* Footer */}
       <footer className="py-8 border-t border-white/10">
         <div className="container-marketing text-center text-gray-500 text-sm">
-          © 2026 DigiForge. Todos os direitos reservados.
+          © 2026 NOXLOOP. Todos os direitos reservados.
         </div>
       </footer>
     </div>

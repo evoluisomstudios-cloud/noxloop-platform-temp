@@ -85,7 +85,7 @@ export const AdminPage = ({ user, onLogout }) => {
           </Button>
           <div>
             <h1 className="text-3xl font-bold">Admin Backoffice</h1>
-            <p className="text-gray-400">Gestão da plataforma DigiForge</p>
+            <p className="text-gray-400">Gestão da plataforma NOXLOOP</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

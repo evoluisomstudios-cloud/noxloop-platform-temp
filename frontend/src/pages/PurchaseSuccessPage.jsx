@@ -93,7 +93,7 @@ export const PurchaseSuccessPage = () => {
           <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
             <Zap className="w-5 h-5 text-black" />
           </div>
-          <span className="text-xl font-bold">DigiForge</span>
+          <span className="text-xl font-bold">NOXLOOP</span>
         </div>
 
         {status === "checking" && (

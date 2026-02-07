@@ -88,7 +88,7 @@ export const AuthPage = ({ onLogin }) => {
             <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
               <Zap className="w-5 h-5 text-black" />
             </div>
-            <span className="text-xl font-bold tracking-tight">DigiForge</span>
+            <span className="text-xl font-bold tracking-tight">NOXLOOP</span>
           </div>
 
           {/* Title */}
