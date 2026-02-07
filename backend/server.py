@@ -68,6 +68,52 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+
+# ==================== ENVIRONMENT VALIDATION ====================
+
+def validate_environment():
+    """Validate critical environment variables on startup"""
+    errors = []
+    warnings = []
+    
+    # Critical vars
+    if not os.environ.get('MONGO_URL'):
+        errors.append("MONGO_URL not configured")
+    
+    if not os.environ.get('JWT_SECRET_KEY') or os.environ.get('JWT_SECRET_KEY') == 'your-secret-key':
+        errors.append("JWT_SECRET_KEY not configured or using default (INSECURE)")
+    
+    # Production warnings
+    if os.environ.get('STRIPE_ENABLED', 'false').lower() == 'true':
+        if not os.environ.get('STRIPE_API_KEY'):
+            warnings.append("STRIPE_ENABLED=true but STRIPE_API_KEY not set")
+        if not os.environ.get('STRIPE_WEBHOOK_SECRET'):
+            warnings.append("STRIPE_ENABLED=true but STRIPE_WEBHOOK_SECRET not set (webhooks will fail)")
+    
+    if os.environ.get('SMTP_ENABLED', 'false').lower() == 'true':
+        required_smtp = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASSWORD']
+        for var in required_smtp:
+            if not os.environ.get(var):
+                warnings.append(f"SMTP_ENABLED=true but {var} not set")
+    
+    if not os.environ.get('OPENAI_API_KEY') and os.environ.get('LLM_PROVIDER') == 'openai':
+        warnings.append("LLM_PROVIDER=openai but OPENAI_API_KEY not set (will use mock)")
+    
+    # Log results
+    if errors:
+        logger.error("❌ CRITICAL CONFIGURATION ERRORS:")
+        for error in errors:
+            logger.error(f"  - {error}")
+        raise RuntimeError(f"Configuration errors: {', '.join(errors)}")
+    
+    if warnings:
+        logger.warning("⚠️  CONFIGURATION WARNINGS:")
+        for warning in warnings:
+            logger.warning(f"  - {warning}")
+    
+    logger.info("✅ Environment validation passed")
+
 # ==================== APP SETUP ====================
 app = FastAPI(
     title="NOXLOOP",
