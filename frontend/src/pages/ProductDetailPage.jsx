@@ -37,7 +37,10 @@ export const ProductDetailPage = ({ user, onLogout }) => {
 
   useEffect(() => {
     fetchProduct();
-  }, [productId]);
+    if (user?.is_admin) {
+      fetchMediaAssets();
+    }
+  }, [productId, user]);
 
   const fetchProduct = async () => {
     try {
