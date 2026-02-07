@@ -1827,6 +1827,39 @@ async def legacy_analytics(user: dict = Depends(get_current_user)):
         "sales_by_day": []
     }
 
+@api_router.get("/products/{product_id}")
+async def legacy_get_product(product_id: str, user: dict = Depends(get_current_user)):
+    """Legacy: get single product"""
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
+@api_router.put("/products/{product_id}")
+async def legacy_update_product(product_id: str, update_data: ProductUpdate, user: dict = Depends(get_current_user)):
+    """Legacy: update product"""
+    product = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Handle is_published -> status sync
+    if "is_published" in update_dict:
+        if update_dict["is_published"] and not product.get("slug"):
+            base_slug = generate_slug(product["title"])
+            slug = base_slug
+            counter = 1
+            while await db.products.find_one({"slug": slug, "product_id": {"$ne": product_id}}):
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            update_dict["slug"] = slug
+            update_dict["public_url"] = f"/p/{slug}"
+    
+    await db.products.update_one({"product_id": product_id}, {"$set": update_dict})
+    return await db.products.find_one({"product_id": product_id}, {"_id": 0})
+
 # ==================== PUBLIC MEDIA ENDPOINT ====================
 
 @api_router.get("/media/{asset_id}")
