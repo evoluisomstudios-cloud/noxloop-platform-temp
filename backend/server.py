@@ -1633,6 +1633,87 @@ async def delete_media(asset_id: str, admin: dict = Depends(get_admin_user)):
     # Delete database record
     await db.media_assets.delete_one({"asset_id": asset_id})
     
+
+
+# ==================== HEALTH CHECK ====================
+
+@api_router.get("/health")
+async def health_check():
+    """Comprehensive health check for production monitoring"""
+    checks = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "status": "healthy",
+        "checks": {}
+    }
+    
+    # Database check
+    try:
+        await db.command("ping")
+        checks["checks"]["database"] = {
+            "status": "healthy",
+            "connected": True,
+            "db_name": db.name
+        }
+    except Exception as e:
+        checks["status"] = "unhealthy"
+        checks["checks"]["database"] = {
+            "status": "unhealthy",
+            "error": str(e)
+        }
+    
+    # Configuration check
+    config_issues = []
+    
+    if not os.environ.get('JWT_SECRET_KEY') or os.environ['JWT_SECRET_KEY'] == 'change-this-secret-key':
+        config_issues.append("JWT_SECRET_KEY using default (insecure)")
+    
+    if STRIPE_ENABLED and not os.environ.get('STRIPE_WEBHOOK_SECRET'):
+        config_issues.append("Stripe enabled but webhook secret missing")
+    
+    checks["checks"]["configuration"] = {
+        "status": "warning" if config_issues else "healthy",
+        "issues": config_issues,
+        "stripe_enabled": STRIPE_ENABLED,
+        "email_enabled": email_service.email_service.enabled,
+        "llm_provider": llm_service.llm_service.provider
+    }
+    
+    # Storage check
+    try:
+        UPLOAD_DIR.mkdir(exist_ok=True)
+        test_file = UPLOAD_DIR / ".health_check"
+        test_file.write_text("ok")
+        test_file.unlink()
+        checks["checks"]["storage"] = {
+            "status": "healthy",
+            "writable": True,
+            "path": str(UPLOAD_DIR)
+        }
+    except Exception as e:
+        checks["status"] = "unhealthy"
+        checks["checks"]["storage"] = {
+            "status": "unhealthy",
+            "writable": False,
+            "error": str(e)
+        }
+    
+    # Collections count
+    try:
+        user_count = await db.users.count_documents({})
+        product_count = await db.products.count_documents({})
+        workspace_count = await db.workspaces.count_documents({})
+        
+        checks["checks"]["data"] = {
+            "status": "healthy",
+            "users": user_count,
+            "products": product_count,
+            "workspaces": workspace_count
+        }
+    except:
+        pass
+    
+    return checks
+
     logger.info(f"Media deleted: {asset_id} by {admin['user_id']}")
     
     return {"status": "deleted", "asset_id": asset_id}
