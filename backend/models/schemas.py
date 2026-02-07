@@ -218,6 +218,35 @@ class PurchaseResponse(BaseModel):
     amount: float
     payment_method: str
     stripe_session_id: Optional[str] = None
+
+
+# ==================== MEDIA ASSET MODELS ====================
+
+class MediaAssetType(str, Enum):
+    IMAGE = "image"
+    VIDEO = "video"
+    DOCUMENT = "document"
+
+class MediaAssetCreate(BaseModel):
+    filename: str
+    type: MediaAssetType
+    size: int
+    mime_type: str
+
+class MediaAssetResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    asset_id: str
+    workspace_id: str
+    owner_id: str
+    filename: str
+    original_filename: str
+    type: MediaAssetType
+    size: int
+    mime_type: str
+    url: str
+    secure_url: str
+    created_at: str
+
     status: str  # pending, completed, failed
     purchased_at: str
     access_granted: bool = False

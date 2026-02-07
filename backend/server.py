@@ -36,7 +36,8 @@ from models.schemas import (
     PlanConfig, PlanUpdate, PlanType, FeatureFlag, UserRole,
     CheckoutRequest, SubscriptionRequest, GoogleAuthRequest,
     AdminStats, SystemStatus, UsageRecord,
-    PurchaseCreate, PurchaseResponse
+    PurchaseCreate, PurchaseResponse,
+    MediaAssetType, MediaAssetCreate, MediaAssetResponse
 )
 
 # ==================== DATABASE ====================
@@ -85,6 +86,34 @@ def generate_slug(title: str) -> str:
     slug = re.sub(r'-+', '-', slug)
     slug = slug.strip('-')
     return slug[:50]  # Max 50 chars
+
+
+# Media upload configuration
+UPLOAD_DIR = Path("/app/uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+ALLOWED_VIDEO_TYPES = {"video/mp4", "video/webm", "video/quicktime"}
+ALLOWED_DOCUMENT_TYPES = {"application/pdf"}
+ALLOWED_MIME_TYPES = ALLOWED_IMAGE_TYPES | ALLOWED_VIDEO_TYPES | ALLOWED_DOCUMENT_TYPES
+
+def generate_secure_filename(original_filename: str) -> str:
+    """Generate secure unique filename"""
+    ext = Path(original_filename).suffix
+    unique_id = uuid.uuid4().hex[:16]
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d")
+    return f"{timestamp}_{unique_id}{ext}"
+
+def get_asset_type(mime_type: str) -> MediaAssetType:
+    """Determine asset type from MIME type"""
+    if mime_type in ALLOWED_IMAGE_TYPES:
+        return MediaAssetType.IMAGE
+    elif mime_type in ALLOWED_VIDEO_TYPES:
+        return MediaAssetType.VIDEO
+    elif mime_type in ALLOWED_DOCUMENT_TYPES:
+        return MediaAssetType.DOCUMENT
+    raise ValueError(f"Unsupported MIME type: {mime_type}")
+
 
 api_router = APIRouter(prefix="/api")
 admin_router = APIRouter(prefix="/api/admin")
