@@ -85,6 +85,10 @@ class WorkspaceInvite(BaseModel):
 
 # ==================== PRODUCT MODELS ====================
 
+class ProductStatus(str, Enum):
+    DRAFT = "draft"
+    PUBLISHED = "published"
+
 class ProductCreate(BaseModel):
     title: str
     description: str
@@ -98,6 +102,7 @@ class ProductUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
+    status: Optional[ProductStatus] = None
     is_published: Optional[bool] = None
     landing_page: Optional[Dict[str, Any]] = None
 
@@ -193,6 +198,27 @@ class PlanUpdate(BaseModel):
     max_workspaces: Optional[int] = None
     max_members_per_workspace: Optional[int] = None
     is_active: Optional[bool] = None
+
+# ==================== PURCHASE MODELS ====================
+
+class PurchaseCreate(BaseModel):
+    product_id: str
+    amount: float
+    payment_method: str  # stripe, paypal
+
+class PurchaseResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    purchase_id: str
+    user_id: str
+    product_id: str
+    workspace_id: str
+    amount: float
+    payment_method: str
+    stripe_session_id: Optional[str] = None
+    status: str  # pending, completed, failed
+    purchased_at: str
+    access_granted: bool = False
+
 
 # ==================== USAGE MODELS ====================
 
