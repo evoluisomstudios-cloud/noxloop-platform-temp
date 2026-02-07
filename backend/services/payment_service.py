@@ -79,7 +79,7 @@ class PaymentService:
                     "price_data": {
                         "currency": "eur",
                         "product_data": {
-                            "name": f"DigiForge {plan_name} Plan",
+                            "name": f"NOXLOOP {plan_name} Plan",
                             "description": f"{credits} credits/month"
                         },
                         "unit_amount": int(price * 100),
@@ -200,7 +200,7 @@ class PaymentService:
                     "intent": "CAPTURE",
                     "purchase_units": [{
                         "reference_id": order_id,
-                        "description": f"DigiForge {plan_name} Plan - {credits} credits",
+                        "description": f"NOXLOOP {plan_name} Plan - {credits} credits",
                         "custom_id": f"{user_id}|{plan_id}|{credits}",
                         "amount": {
                             "currency_code": "EUR",
@@ -208,7 +208,7 @@ class PaymentService:
                         }
                     }],
                     "application_context": {
-                        "brand_name": "DigiForge",
+                        "brand_name": "NOXLOOP",
                         "landing_page": "BILLING",
                         "user_action": "PAY_NOW",
                         "return_url": return_url + f"?order_id={{order_id}}&provider=paypal",

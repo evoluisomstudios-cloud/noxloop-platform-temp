@@ -1,4 +1,4 @@
-# DigiForge Backend Dependencies
+# NOXLOOP Backend Dependencies
 # 100% Self-Hosted - No SaaS dependencies
 
 # Web Framework
