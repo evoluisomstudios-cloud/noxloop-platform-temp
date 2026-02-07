@@ -11,8 +11,8 @@ import time
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://noxloop-media-studio.preview.emergentagent.com').rstrip('/')
 
 # Test credentials - Admin required for media endpoints
-ADMIN_EMAIL = "admin@digiforge.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = "test_admin@noxloop.com"
+ADMIN_PASSWORD = "admin123456"
 
 # Test file content for upload
 TEST_IMAGE_CONTENT = (
