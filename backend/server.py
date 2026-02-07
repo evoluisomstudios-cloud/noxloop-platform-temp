@@ -4,8 +4,11 @@
 
 Version: 2.0.0
 """
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Depends, Response
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi import (
+    FastAPI, APIRouter, HTTPException, Request, Depends, Response,
+    UploadFile, File
+)
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
