@@ -782,6 +782,150 @@ async def get_public_product(product_id: str):
     await db.products.update_one({"product_id": product_id}, {"$inc": {"views": 1}})
     return product
 
+
+# ==================== PURCHASE ROUTES ====================
+
+@api_router.post("/products/{product_id}/purchase")
+async def create_product_purchase(product_id: str, request: Request, user: dict = Depends(get_current_user)):
+    """Create Stripe checkout session for product purchase"""
+    # Get product
+    product = await db.products.find_one({
+        "product_id": product_id,
+        "is_published": True
+    }, {"_id": 0})
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Produto não encontrado ou não publicado")
+    
+    if product.get("price", 0) <= 0:
+        raise HTTPException(status_code=400, detail="Produto gratuito não requer pagamento")
+    
+    # Check if already purchased
+    existing = await db.purchases.find_one({
+        "user_id": user["user_id"],
+        "product_id": product_id,
+        "status": "completed"
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Já adquiriste este produto")
+    
+    # Create purchase record
+    purchase_id = f"purchase_{uuid.uuid4().hex[:16]}"
+    purchase = {
+        "purchase_id": purchase_id,
+        "user_id": user["user_id"],
+        "product_id": product_id,
+        "workspace_id": product["workspace_id"],
+        "amount": product["price"],
+        "payment_method": "stripe",
+        "status": "pending",
+        "purchased_at": datetime.now(timezone.utc).isoformat(),
+        "access_granted": False
+    }
+    await db.purchases.insert_one(purchase)
+    
+    # Create Stripe session
+    data = await request.json()
+    origin_url = data.get("origin_url", "")
+    
+    try:
+        session = await payment_service.create_stripe_checkout(
+            user_id=user["user_id"],
+            plan_name=product["title"],
+            price=product["price"],
+            credits=0,
+            mode="payment",
+            success_url=f"{origin_url}/purchase/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{origin_url}/p/{product_id}",
+            metadata={"purchase_id": purchase_id, "product_id": product_id}
+        )
+        
+        # Update purchase with session_id
+        await db.purchases.update_one(
+            {"purchase_id": purchase_id},
+            {"$set": {"stripe_session_id": session["id"]}}
+        )
+        
+        return {"checkout_url": session["url"]}
+    except Exception as e:
+        logger.error(f"Stripe checkout error: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao criar checkout")
+
+@api_router.get("/purchases/verify")
+async def verify_purchase(session_id: str, user: dict = Depends(get_current_user)):
+    """Verify Stripe payment and grant access"""
+    try:
+        # Get Stripe session
+        session_data = await payment_service.get_stripe_session(session_id)
+        
+        if session_data["status"] != "paid":
+            return {"status": "pending", "message": "Pagamento pendente"}
+        
+        # Find purchase
+        purchase = await db.purchases.find_one({
+            "stripe_session_id": session_id,
+            "user_id": user["user_id"]
+        })
+        
+        if not purchase:
+            raise HTTPException(status_code=404, detail="Compra não encontrada")
+        
+        # Grant access if not already granted
+        if not purchase.get("access_granted"):
+            await db.purchases.update_one(
+                {"purchase_id": purchase["purchase_id"]},
+                {"$set": {
+                    "status": "completed",
+                    "access_granted": True,
+                    "completed_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            # Update product stats
+            await db.products.update_one(
+                {"product_id": purchase["product_id"]},
+                {"$inc": {"downloads": 1, "revenue": purchase["amount"]}}
+            )
+        
+        # Get product
+        product = await db.products.find_one(
+            {"product_id": purchase["product_id"]},
+            {"_id": 0}
+        )
+        
+        return {
+            "status": "completed",
+            "message": "Acesso garantido",
+            "product": product,
+            "download_url": product.get("content") if product else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Purchase verification error: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao verificar compra")
+
+@api_router.get("/purchases/my")
+async def get_my_purchases(user: dict = Depends(get_current_user)):
+    """Get user's purchases"""
+    purchases = await db.purchases.find(
+        {"user_id": user["user_id"], "status": "completed"},
+        {"_id": 0}
+    ).sort("purchased_at", -1).to_list(100)
+    
+    # Enrich with product data
+    for purchase in purchases:
+        product = await db.products.find_one(
+            {"product_id": purchase["product_id"]},
+            {"_id": 0, "title": 1, "product_type": 1}
+        )
+        if product:
+            purchase["product_title"] = product.get("title")
+            purchase["product_type"] = product.get("product_type")
+    
+    return purchases
+
+
 # ==================== BILLING ROUTES ====================
 
 @api_router.get("/billing/plans")
