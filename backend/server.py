@@ -1677,8 +1677,8 @@ async def health_check():
         "status": "warning" if config_issues else "healthy",
         "issues": config_issues,
         "stripe_enabled": STRIPE_ENABLED,
-        "email_enabled": email_service.email_service.enabled,
-        "llm_provider": llm_service.llm_service.provider
+        "email_enabled": email_service.enabled if hasattr(email_service, 'enabled') else False,
+        "llm_provider": llm_service.provider if hasattr(llm_service, 'provider') else "unknown"
     }
     
     # Storage check
