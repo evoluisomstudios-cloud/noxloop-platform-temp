@@ -669,8 +669,30 @@ async def get_product(workspace_id: str, product_id: str, user: dict = Depends(g
 async def update_product(workspace_id: str, product_id: str, update_data: ProductUpdate, user: dict = Depends(get_current_user)):
     await get_workspace_member(workspace_id, user)
     
+    # Get existing product
+    product = await db.products.find_one({"product_id": product_id, "workspace_id": workspace_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
     update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
     update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Handle publication with slug
+    if "status" in update_dict:
+        update_dict["is_published"] = (update_dict["status"] == "published")
+        
+        if update_dict["is_published"] and not product.get("slug"):
+            # Generate unique slug
+            base_slug = generate_slug(product["title"])
+            slug = base_slug
+            counter = 1
+            
+            while await db.products.find_one({"slug": slug, "product_id": {"$ne": product_id}}):
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            
+            update_dict["slug"] = slug
+            update_dict["public_url"] = f"/p/{slug}"
     
     result = await db.products.update_one(
         {"product_id": product_id, "workspace_id": workspace_id},
