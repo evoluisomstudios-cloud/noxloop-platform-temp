@@ -1448,7 +1448,15 @@ async def create_template(template_data: TemplateCreate, user: dict = Depends(ge
     template_doc = {
         "template_id": template_id,
         "name": template_data.name,
-
+        "description": template_data.description,
+        "type": template_data.type,
+        "content": template_data.content,
+        "created_at": now,
+        "updated_at": now
+    }
+    
+    await db.templates.insert_one(template_doc)
+    return TemplateResponse(**template_doc)
 
 # ==================== MEDIA ASSET ROUTES (ADMIN) ====================
 
