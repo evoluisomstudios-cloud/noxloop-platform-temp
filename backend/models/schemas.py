@@ -103,6 +103,7 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     price: Optional[float] = None
     status: Optional[ProductStatus] = None
+    media_asset_ids: Optional[List[str]] = None
     is_published: Optional[bool] = None
     landing_page: Optional[Dict[str, Any]] = None
 
@@ -120,6 +121,7 @@ class ProductResponse(BaseModel):
     is_published: bool = False
     slug: Optional[str] = None
     public_url: Optional[str] = None
+    media_asset_ids: List[str] = []
     landing_page: Optional[Dict[str, Any]] = None
     downloads: int = 0
     revenue: float = 0.0
