@@ -443,24 +443,37 @@ curl -X POST http://localhost:8001/api/admin/media/upload \
 - [ ] File salvo em /uploads com nome seguro
 - [ ] DB record criado
 
-### 11.3 Download com auth
+### 11.3 Download público de media
 
 ```bash
 ASSET_ID=$(curl -s http://localhost:8001/api/admin/media --cookie /tmp/admin_cookies.txt | jq -r '.assets[0].asset_id')
 
-curl "http://localhost:8001/api/media/$ASSET_ID" \
-  --cookie /tmp/test_cookies.txt \
-  -o /tmp/downloaded.jpg
+# Download SEM auth - Endpoint PÚBLICO
+curl "http://localhost:8001/api/media/$ASSET_ID" -o /tmp/downloaded.jpg
 
-# ✅ File downloaded
+# ✅ File downloaded (endpoint público)
 ```
 
-### 11.4 Download SEM auth
+### 11.4 Associar media a produto
 
 ```bash
-curl "http://localhost:8001/api/media/$ASSET_ID"
+curl -X PUT "http://localhost:8001/api/products/$PRODUCT_ID" \
+  --cookie /tmp/admin_cookies.txt \
+  -H "Content-Type: application/json" \
+  -d '{
+    "media_asset_ids": ["'"$ASSET_ID"'"]
+  }' | jq '{product_id, media_asset_ids}'
 
-# ✅ Deve retornar: 401 Unauthorized
+# ✅ media_asset_ids guardados no produto
+```
+
+### 11.5 Verificar imagem na página pública
+
+```bash
+curl -s "http://localhost:8001/api/public/product/$PRODUCT_ID" | jq '{title, media_asset_ids}'
+
+# ✅ media_asset_ids presente
+# A primeira imagem será mostrada como hero image no frontend
 ```
 
 ---
