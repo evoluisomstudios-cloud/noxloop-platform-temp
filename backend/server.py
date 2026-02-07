@@ -806,9 +806,25 @@ async def export_campaign(workspace_id: str, campaign_id: str, user: dict = Depe
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         
-        # Send webhook
-        await webhook_service.export_generated(
+        # Send webhook  
+        try:
+            await webhook_service.export_generated(
+                f"exp_{uuid.uuid4().hex[:8]}", workspace_id, user["user_id"], "campaign_zip", len(zip_bytes)
+            )
+        except:
+            pass  # Webhook is optional
+        
+        return StreamingResponse(
+            io.BytesIO(zip_bytes),
+            media_type="application/zip",
+            headers={"Content-Disposition": f"attachment; filename=campaign_{campaign_id}.zip"}
+        )
+        
+    except Exception as e:
+        logger.error(f"Export error: {e}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
 
+# ==================== PUBLIC ROUTES ====================
 
 @api_router.get("/public/products")
 async def get_public_products(skip: int = 0, limit: int = 50, product_type: Optional[str] = None):
