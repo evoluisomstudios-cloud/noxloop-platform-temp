@@ -17,7 +17,7 @@ export const LandingPage = () => {
     {
       icon: Sparkles,
       title: "Geração com IA",
-      description: "Cria eBooks, guias e cursos completos em minutos com GPT-5.2",
+      description: "Cria eBooks, guias e cursos completos em minutos com tecnologia avançada de IA",
     },
     {
       icon: CreditCard,
@@ -38,7 +38,7 @@ export const LandingPage = () => {
 
   const steps = [
     { number: "01", title: "Define o Tópico", description: "Escolhe o tema e público-alvo do teu produto" },
-    { number: "02", title: "A IA Gera", description: "O GPT-5.2 cria conteúdo profissional completo" },
+    { number: "02", title: "A IA Gera", description: "A tecnologia cria conteúdo profissional completo" },
     { number: "03", title: "Personaliza", description: "Ajusta o preço e landing page de venda" },
     { number: "04", title: "Vende", description: "Partilha o link e começa a faturar" },
   ];
