@@ -99,6 +99,7 @@ export const ProductDetailPage = ({ user, onLogout }) => {
           description: editedProduct.description,
           price: parseFloat(editedProduct.price) || 0,
           is_published: editedProduct.is_published,
+          media_asset_ids: editedProduct.media_asset_ids || [],
         }),
       });
 
