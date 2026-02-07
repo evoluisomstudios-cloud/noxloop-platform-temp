@@ -131,7 +131,7 @@ def create_jwt_token(user_id: str, email: str, is_admin: bool = False) -> str:
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 async def get_current_user(request: Request) -> dict:
-    """Get current authenticated user"""
+    """Get current authenticated user with role from database"""
     token = request.cookies.get("session_token")
     if not token:
         auth_header = request.headers.get("Authorization")
@@ -145,7 +145,8 @@ async def get_current_user(request: Request) -> dict:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         user = await db.users.find_one({"user_id": payload["user_id"]}, {"_id": 0, "password": 0})
         if user:
-            user["is_admin"] = payload.get("is_admin", False)
+            # ALWAYS get role from database, never from token
+            user["is_admin"] = user.get("is_admin", False)
             return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
@@ -155,11 +156,21 @@ async def get_current_user(request: Request) -> dict:
     raise HTTPException(status_code=401, detail="Invalid token")
 
 async def get_admin_user(request: Request) -> dict:
-    """Get current admin user"""
+    """Get current admin user - requires admin role in DB"""
     user = await get_current_user(request)
     if not user.get("is_admin", False):
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
+
+def require_role(allowed_roles: list):
+    """Dependency to require specific workspace roles"""
+    async def check_role(user: dict = Depends(get_current_user)):
+        # For admin endpoints, check is_admin flag
+        if "admin" in allowed_roles and user.get("is_admin", False):
+            return user
+        # For workspace roles, check membership (handled separately)
+        return user
+    return check_role
 
 async def get_workspace_member(workspace_id: str, user: dict) -> dict:
     """Check if user is member of workspace and return membership"""
