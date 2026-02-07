@@ -808,6 +808,49 @@ async def export_campaign(workspace_id: str, campaign_id: str, user: dict = Depe
         
         # Send webhook
         await webhook_service.export_generated(
+
+
+@api_router.get("/public/products")
+async def get_public_products(skip: int = 0, limit: int = 50, product_type: Optional[str] = None):
+    """Get all published products for public catalog"""
+    query = {"is_published": True}
+    
+    if product_type:
+        query["product_type"] = product_type
+    
+    products = await db.products.find(
+        query,
+        {"_id": 0, "content": 0, "workspace_id": 0, "user_id": 0}  # Hide sensitive data
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    total = await db.products.count_documents(query)
+    
+    return {
+        "products": products,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
+@api_router.get("/public/product/slug/{slug}")
+async def get_public_product_by_slug(slug: str):
+    """Get published product by slug for public viewing"""
+    product = await db.products.find_one({
+        "slug": slug,
+        "is_published": True
+    }, {"_id": 0, "workspace_id": 0, "user_id": 0})
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Produto não encontrado ou não publicado")
+    
+    # Increment views
+    await db.products.update_one(
+        {"slug": slug},
+        {"$inc": {"views": 1}}
+    )
+    
+    return product
+
             f"exp_{uuid.uuid4().hex[:8]}", workspace_id, user["user_id"], "campaign_zip", len(zip_bytes)
         )
         
