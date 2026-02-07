@@ -306,7 +306,7 @@ export const LandingPage = () => {
               <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center">
                 <Zap className="w-4 h-4 text-black" />
               </div>
-              <span className="font-bold">DigiForge</span>
+              <span className="font-bold">NOXLOOP</span>
             </div>
             <p className="text-gray-500 text-sm">
               © 2026 DigiForge. Todos os direitos reservados.
