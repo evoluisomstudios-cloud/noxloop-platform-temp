@@ -1292,7 +1292,7 @@ async def confirm_paypal_payment(request: Request, user: dict = Depends(get_curr
 
 @api_router.post("/billing/webhook/stripe")
 async def stripe_webhook(request: Request):
-    """Handle Stripe webhooks"""
+    """Handle Stripe webhooks with idempotency"""
     payload = await request.body()
     signature = request.headers.get("stripe-signature", "")
     
@@ -1300,6 +1300,26 @@ async def stripe_webhook(request: Request):
         event = payment_service.payment_service.verify_stripe_webhook(payload, signature)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    event_id = event.get("id")
+    event_type = event["type"]
+    
+    # Check idempotency - prevent duplicate processing
+    existing_event = await db.webhook_events.find_one({"event_id": event_id})
+    if existing_event:
+        logger.info(f"Webhook event {event_id} already processed, skipping")
+        return {"status": "already_processed", "event_id": event_id}
+    
+    # Record event
+    await db.webhook_events.insert_one({
+        "event_id": event_id,
+        "event_type": event_type,
+        "processed_at": datetime.now(timezone.utc).isoformat(),
+        "payload_summary": {
+            "type": event_type,
+            "created": event.get("created")
+        }
+    })
     
     # Handle checkout.session.completed
     if event["type"] == "checkout.session.completed":
