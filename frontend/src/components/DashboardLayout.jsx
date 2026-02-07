@@ -51,7 +51,7 @@ export const DashboardLayout = ({ children, user, onLogout }) => {
             <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
               <Zap className="w-5 h-5 text-black" />
             </div>
-            <span className="text-lg font-bold tracking-tight">DigiForge</span>
+            <span className="text-lg font-bold tracking-tight">NOXLOOP</span>
           </Link>
         </div>
 
