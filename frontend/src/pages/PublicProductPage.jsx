@@ -121,32 +121,46 @@ export const PublicProductPage = () => {
       <section className="pt-32 pb-16 relative">
         <div className="absolute inset-0 gradient-glow opacity-30" />
         <div className="container-marketing relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
-              <Star className="w-4 h-4 text-yellow-500" />
-              <span className="text-sm text-gray-300">
-                {product.product_type === "ebook" ? "eBook Digital" : 
-                 product.product_type === "guide" ? "Guia Prático" :
-                 product.product_type === "course" ? "Curso Online" : "Template"}
-              </span>
+          <div className="max-w-4xl mx-auto">
+            {/* Product Image */}
+            {primaryImageUrl && (
+              <div className="mb-8 flex justify-center">
+                <img
+                  src={primaryImageUrl}
+                  alt={product.title}
+                  className="max-w-md w-full h-auto rounded-2xl shadow-2xl border border-white/10"
+                  data-testid="product-hero-image"
+                />
+              </div>
+            )}
+            
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
+                <Star className="w-4 h-4 text-yellow-500" />
+                <span className="text-sm text-gray-300">
+                  {product.product_type === "ebook" ? "eBook Digital" : 
+                   product.product_type === "guide" ? "Guia Prático" :
+                   product.product_type === "course" ? "Curso Online" : "Template"}
+                </span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                {landing.headline || product.title}
+              </h1>
+
+              <p className="text-xl text-gray-400 mb-8">
+                {landing.subheadline || product.description}
+              </p>
+
+              <Button 
+                size="lg"
+                onClick={() => document.getElementById("buy-section")?.scrollIntoView({ behavior: "smooth" })}
+                className="bg-white text-black hover:bg-gray-200 h-14 px-10 text-lg"
+              >
+                {landing.cta_text || "Comprar Agora"}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
             </div>
-
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              {landing.headline || product.title}
-            </h1>
-
-            <p className="text-xl text-gray-400 mb-8">
-              {landing.subheadline || product.description}
-            </p>
-
-            <Button 
-              size="lg"
-              onClick={() => document.getElementById("buy-section")?.scrollIntoView({ behavior: "smooth" })}
-              className="bg-white text-black hover:bg-gray-200 h-14 px-10 text-lg"
-            >
-              {landing.cta_text || "Comprar Agora"}
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
           </div>
         </div>
       </section>
