@@ -74,7 +74,7 @@ export const LandingPage = () => {
             <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
               <Zap className="w-5 h-5 text-black" />
             </div>
-            <span className="text-lg font-bold tracking-tight">DigiForge</span>
+            <span className="text-lg font-bold tracking-tight">NOXLOOP</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-8">
@@ -113,11 +113,7 @@ export const LandingPage = () => {
         
         <div className="container-marketing relative z-10">
           <div className="max-w-4xl">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-fade-in">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span className="text-sm text-gray-300">Powered by GPT-5.2</span>
-            </div>
+            {/* Badge removed */}
 
             {/* Headline */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6 animate-fade-in stagger-1">
