@@ -426,6 +426,7 @@ async def get_me(user: dict = Depends(get_current_user)):
     
     return {
         **user,
+        "is_admin": user.get("is_admin", False),
         "credits": default_ws.get("credits", 0) if default_ws else 0,
         "plan": default_ws.get("plan", "free") if default_ws else "free",
         "workspaces": [{"workspace_id": w["workspace_id"], "name": w["name"], "credits": w.get("credits", 0), "plan": w.get("plan", "free"), "role": next((m["role"] for m in memberships if m["workspace_id"] == w["workspace_id"]), "member")} for w in workspaces]
