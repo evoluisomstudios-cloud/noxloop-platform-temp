@@ -32,6 +32,8 @@ export const ProductDetailPage = ({ user, onLogout }) => {
   const [saving, setSaving] = useState(false);
   const [generatingLanding, setGeneratingLanding] = useState(false);
   const [editedProduct, setEditedProduct] = useState(null);
+  const [mediaAssets, setMediaAssets] = useState([]);
+  const [loadingMedia, setLoadingMedia] = useState(false);
 
   useEffect(() => {
     fetchProduct();
