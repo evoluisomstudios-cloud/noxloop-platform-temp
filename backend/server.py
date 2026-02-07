@@ -530,8 +530,11 @@ async def generate_product(workspace_id: str, product_data: ProductCreate, user:
     membership = await get_workspace_member(workspace_id, user)
     workspace = await db.workspaces.find_one({"workspace_id": workspace_id}, {"_id": 0})
     
-    if workspace.get("credits", 0) <= 0:
-        raise HTTPException(status_code=402, detail="Insufficient credits")
+    if workspace.get("credits", 0) < 5:
+        raise HTTPException(
+            status_code=402,
+            detail=f"Créditos insuficientes. Necessário: 5, Disponível: {workspace.get('credits', 0)}"
+        )
     
     # Anti-abuse check
     abuse_check = security_service.credit_protection.check_credit_abuse(user["user_id"])
@@ -601,18 +604,18 @@ Formata em Markdown."""
         
         await db.products.insert_one(product_doc)
         
-        # Deduct credit
-        await db.workspaces.update_one({"workspace_id": workspace_id}, {"$inc": {"credits": -1}})
+        # Deduct 5 credits per generation
+        await db.workspaces.update_one({"workspace_id": workspace_id}, {"$inc": {"credits": -5}})
         
         # Record usage for anti-abuse
-        security_service.credit_protection.record_credit_usage(user["user_id"], 1)
+        security_service.credit_protection.record_credit_usage(user["user_id"], 5)
         
         # Record usage
         await db.usage.insert_one({
             "workspace_id": workspace_id,
             "user_id": user["user_id"],
             "action": "generation",
-            "credits_used": 1,
+            "credits_used": 5,
             "metadata": {"product_id": product_id, "type": product_data.product_type},
             "created_at": now
         })
