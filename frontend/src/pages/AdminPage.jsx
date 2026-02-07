@@ -274,6 +274,13 @@ export const AdminPage = ({ user, onLogout }) => {
             </div>
           </div>
         </TabsContent>
+
+
+        {/* Media Tab */}
+        <TabsContent value="media">
+          <AdminMediaPage user={user} />
+        </TabsContent>
+
       </Tabs>
     </div>
   );
