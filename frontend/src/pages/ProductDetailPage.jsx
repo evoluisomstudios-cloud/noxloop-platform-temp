@@ -354,6 +354,88 @@ export const ProductDetailPage = ({ user, onLogout }) => {
             </div>
           </TabsContent>
 
+          {/* Media Tab - Admin Only */}
+          {user?.is_admin && (
+            <TabsContent value="media" className="space-y-6">
+              <div className="card-dashboard">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5" />
+                  Imagens do Produto
+                </h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  Seleciona as imagens que aparecem na página pública. A primeira será a imagem principal.
+                </p>
+
+                {/* Selected Images Preview */}
+                {(editedProduct.media_asset_ids?.length > 0) && (
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Selecionadas ({editedProduct.media_asset_ids.length}):</p>
+                    <div className="flex flex-wrap gap-2">
+                      {editedProduct.media_asset_ids.map((assetId, idx) => {
+                        const asset = mediaAssets.find(a => a.asset_id === assetId);
+                        return (
+                          <div key={assetId} className="relative group">
+                            <img
+                              src={`${API}/media/${assetId}`}
+                              alt={asset?.original_filename || "Media"}
+                              className="w-20 h-20 object-cover rounded border border-[#262626]"
+                            />
+                            {idx === 0 && (
+                              <span className="absolute top-0 left-0 bg-green-500 text-black text-xs px-1 rounded-br">
+                                Principal
+                              </span>
+                            )}
+                            <button
+                              onClick={() => toggleMediaAsset(assetId)}
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="w-3 h-3 text-white" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Available Media Grid */}
+                {loadingMedia ? (
+                  <div className="flex justify-center py-8">
+                    <div className="spinner" />
+                  </div>
+                ) : mediaAssets.length === 0 ? (
+                  <p className="text-gray-400 text-center py-8">
+                    Nenhuma imagem disponível. Faz upload em Admin → Media.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                    {mediaAssets.map((asset) => {
+                      const isSelected = editedProduct.media_asset_ids?.includes(asset.asset_id);
+                      return (
+                        <div
+                          key={asset.asset_id}
+                          onClick={() => toggleMediaAsset(asset.asset_id)}
+                          className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                            isSelected
+                              ? "border-blue-500 ring-2 ring-blue-500/30"
+                              : "border-[#262626] hover:border-gray-500"
+                          }`}
+                          data-testid={`media-select-${asset.asset_id}`}
+                        >
+                          <img
+                            src={`${API}/media/${asset.asset_id}`}
+                            alt={asset.original_filename}
+                            className="w-full aspect-square object-cover"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          )}
+
           {/* Landing Page Tab */}
           <TabsContent value="landing" className="space-y-6">
             {!product.landing_page ? (
