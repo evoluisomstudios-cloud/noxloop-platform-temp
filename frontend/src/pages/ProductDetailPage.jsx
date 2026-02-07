@@ -62,6 +62,31 @@ export const ProductDetailPage = ({ user, onLogout }) => {
     }
   };
 
+  const fetchMediaAssets = async () => {
+    setLoadingMedia(true);
+    try {
+      const response = await fetch(`${API}/admin/media?type=image`, {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMediaAssets(data.assets || []);
+      }
+    } catch (error) {
+      console.error("Error fetching media:", error);
+    } finally {
+      setLoadingMedia(false);
+    }
+  };
+
+  const toggleMediaAsset = (assetId) => {
+    const current = editedProduct.media_asset_ids || [];
+    const updated = current.includes(assetId)
+      ? current.filter(id => id !== assetId)
+      : [...current, assetId];
+    setEditedProduct({ ...editedProduct, media_asset_ids: updated });
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
