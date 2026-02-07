@@ -168,6 +168,8 @@ export const AdminPage = ({ user, onLogout }) => {
           <TabsTrigger value="users">Utilizadores</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="plans">Planos</TabsTrigger>
+          <TabsTrigger value="media">Media</TabsTrigger>
+          <TabsTrigger value="promo">Promo Packs</TabsTrigger>
         </TabsList>
 
         {/* Users Tab */}
@@ -279,16 +281,13 @@ export const AdminPage = ({ user, onLogout }) => {
 
         {/* Media Tab */}
         <TabsContent value="media">
-
+          <AdminMediaPage user={user} />
+        </TabsContent>
 
         {/* Promo Tab */}
         <TabsContent value="promo">
           <AdminPromoPage user={user} />
         </TabsContent>
-
-          <AdminMediaPage user={user} />
-        </TabsContent>
-
       </Tabs>
     </div>
   );
