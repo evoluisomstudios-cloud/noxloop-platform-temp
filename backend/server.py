@@ -1448,6 +1448,140 @@ async def create_template(template_data: TemplateCreate, user: dict = Depends(ge
     template_doc = {
         "template_id": template_id,
         "name": template_data.name,
+
+
+# ==================== MEDIA ASSET ROUTES (ADMIN) ====================
+
+@admin_router.post("/media/upload")
+async def upload_media(
+    file: UploadFile = File(...),
+    admin: dict = Depends(get_admin_user)
+):
+    """Upload media asset - Admin only"""
+    # Validate file size
+    contents = await file.read()
+    file_size = len(contents)
+    
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Ficheiro demasiado grande. Máximo: {MAX_FILE_SIZE / 1024 / 1024}MB"
+        )
+    
+    # Validate MIME type
+    mime_type = file.content_type
+    if mime_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo de ficheiro não suportado. Tipos permitidos: imagens, vídeos, PDFs"
+        )
+    
+    try:
+        # Generate secure filename
+        secure_filename = generate_secure_filename(file.filename)
+        file_path = UPLOAD_DIR / secure_filename
+        
+        # Save file
+        with open(file_path, "wb") as f:
+            f.write(contents)
+        
+        # Get workspace for admin
+        membership = await db.workspace_members.find_one({"user_id": admin["user_id"]})
+        workspace_id = membership["workspace_id"] if membership else None
+        
+        # Create database record
+        asset_id = f"asset_{uuid.uuid4().hex[:16]}"
+        asset_type = get_asset_type(mime_type)
+        
+        asset = {
+            "asset_id": asset_id,
+            "workspace_id": workspace_id,
+            "owner_id": admin["user_id"],
+            "filename": secure_filename,
+            "original_filename": file.filename,
+            "type": asset_type.value,
+            "size": file_size,
+            "mime_type": mime_type,
+            "url": f"/uploads/{secure_filename}",
+            "secure_url": f"/api/media/{asset_id}",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.media_assets.insert_one(asset)
+        
+        logger.info(f"Media uploaded: {asset_id} by {admin['user_id']}")
+        
+        return MediaAssetResponse(**asset)
+        
+    except Exception as e:
+        # Cleanup file on error
+        if file_path.exists():
+            file_path.unlink()
+        logger.error(f"Upload error: {e}")
+        raise HTTPException(status_code=500, detail=f"Erro ao fazer upload: {str(e)}")
+
+@admin_router.get("/media")
+async def list_media(
+    admin: dict = Depends(get_admin_user),
+    skip: int = 0,
+    limit: int = 100,
+    type: Optional[MediaAssetType] = None
+):
+    """List media assets - Admin only"""
+    query = {}
+    
+    if type:
+        query["type"] = type.value
+    
+    assets = await db.media_assets.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.media_assets.count_documents(query)
+    
+    return {
+        "assets": assets,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
+@admin_router.delete("/media/{asset_id}")
+async def delete_media(asset_id: str, admin: dict = Depends(get_admin_user)):
+    """Delete media asset - Admin only"""
+    asset = await db.media_assets.find_one({"asset_id": asset_id})
+    
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset não encontrado")
+    
+    # Delete file
+    file_path = UPLOAD_DIR / asset["filename"]
+    if file_path.exists():
+        file_path.unlink()
+    
+    # Delete database record
+    await db.media_assets.delete_one({"asset_id": asset_id})
+    
+    logger.info(f"Media deleted: {asset_id} by {admin['user_id']}")
+    
+    return {"status": "deleted", "asset_id": asset_id}
+
+@api_router.get("/media/{asset_id}")
+async def serve_media(asset_id: str, user: dict = Depends(get_current_user)):
+    """Serve media file - Requires authentication"""
+    asset = await db.media_assets.find_one({"asset_id": asset_id})
+    
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset não encontrado")
+    
+    file_path = UPLOAD_DIR / asset["filename"]
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Ficheiro não encontrado")
+    
+    return FileResponse(
+        file_path,
+        media_type=asset["mime_type"],
+        filename=asset["original_filename"]
+    )
+
         "description": template_data.description,
         "category": template_data.category,
         "prompt_template": template_data.prompt_template,
