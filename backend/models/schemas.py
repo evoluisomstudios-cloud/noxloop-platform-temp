@@ -1,5 +1,5 @@
 """
-Pydantic Models for DigiForge
+Pydantic Models for NOXLOOP
 """
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional, Dict, Any

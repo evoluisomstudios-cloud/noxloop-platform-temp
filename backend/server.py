@@ -41,7 +41,7 @@ from models.schemas import (
 # ==================== DATABASE ====================
 mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ.get('DB_NAME', 'digiforge')]
+db = client[os.environ.get('DB_NAME', 'noxloop')]
 
 # ==================== CONFIGURATION ====================
 JWT_SECRET = os.environ.get('JWT_SECRET_KEY', 'change-this-secret-key')
@@ -59,7 +59,7 @@ GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 
 # Admin credentials
-ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@digiforge.local')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@noxloop.pt')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin123')
 
 # Configure logging
@@ -68,7 +68,7 @@ logger = logging.getLogger(__name__)
 
 # ==================== APP SETUP ====================
 app = FastAPI(
-    title="DigiForge",
+    title="NOXLOOP",
     description="AI-Powered Digital Product Platform - 100% Self-Hosted",
     version="2.0.0"
 )
