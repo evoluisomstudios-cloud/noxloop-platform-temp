@@ -1590,18 +1590,6 @@ async def serve_media(asset_id: str, user: dict = Depends(get_current_user)):
         filename=asset["original_filename"]
     )
 
-        "category": template_data.category,
-        "prompt_template": template_data.prompt_template,
-        "variables": template_data.variables,
-        "is_active": template_data.is_active,
-        "usage_count": 0,
-        "created_at": now,
-        "updated_at": now
-    }
-    
-    await db.templates.insert_one(template_doc)
-    template_doc.pop("_id", None)
-    return template_doc
 
 @admin_router.put("/templates/{template_id}")
 async def update_template(template_id: str, update_data: TemplateUpdate, user: dict = Depends(get_admin_user)):
