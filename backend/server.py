@@ -1714,28 +1714,6 @@ async def health_check():
     
     return checks
 
-    logger.info(f"Media deleted: {asset_id} by {admin['user_id']}")
-    
-    return {"status": "deleted", "asset_id": asset_id}
-
-@api_router.get("/media/{asset_id}")
-async def serve_media(asset_id: str, user: dict = Depends(get_current_user)):
-    """Serve media file - Requires authentication"""
-    asset = await db.media_assets.find_one({"asset_id": asset_id})
-    
-    if not asset:
-        raise HTTPException(status_code=404, detail="Asset não encontrado")
-    
-    file_path = UPLOAD_DIR / asset["filename"]
-    
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Ficheiro não encontrado")
-    
-    return FileResponse(
-        file_path,
-        media_type=asset["mime_type"],
-        filename=asset["original_filename"]
-    )
 
 
 @admin_router.put("/templates/{template_id}")
