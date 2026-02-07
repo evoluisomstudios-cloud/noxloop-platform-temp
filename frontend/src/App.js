@@ -16,6 +16,7 @@ import { PublicProductPage } from "./pages/PublicProductPage";
 import { PurchaseSuccessPage } from "./pages/PurchaseSuccessPage";
 import { AdminPage } from "./pages/AdminPage";
 import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
+import ProductsCatalogPage from "./pages/ProductsCatalogPage";
 
 const API = process.env.REACT_APP_BACKEND_URL + "/api";
 
