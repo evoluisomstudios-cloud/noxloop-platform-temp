@@ -309,7 +309,7 @@ export const LandingPage = () => {
               <span className="font-bold">NOXLOOP</span>
             </div>
             <p className="text-gray-500 text-sm">
-              © 2026 DigiForge. Todos os direitos reservados.
+              © 2026 NOXLOOP. Todos os direitos reservados.
             </p>
           </div>
         </div>
