@@ -40,30 +40,32 @@ export const PublicProductPage = () => {
   };
 
   const handlePurchase = async () => {
-    if (!email) {
-      toast.error("Introduz o teu email");
-      return;
-    }
-
     setPurchasing(true);
     
     try {
+      const token = localStorage.getItem('noxloop_token');
+      if (!token) {
+        toast.error("Faz login para comprar");
+        window.location.href = "/auth";
+        return;
+      }
+      
       const originUrl = window.location.origin;
-      const response = await fetch(`${API}/checkout/create`, {
+      const response = await fetch(`${API}/products/${productId}/purchase`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          product_id: productId,
-          origin_url: originUrl,
-          customer_email: email,
-        }),
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ origin_url: originUrl }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        window.location.href = data.url;
+        window.location.href = data.checkout_url;
       } else {
-        toast.error("Erro ao processar compra");
+        const error = await response.json();
+        toast.error(error.detail || "Erro ao processar compra");
         setPurchasing(false);
       }
     } catch (error) {
