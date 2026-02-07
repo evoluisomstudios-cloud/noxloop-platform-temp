@@ -1,0 +1,61 @@
+# ============================================
+# DigiForge Caddy Configuration
+# Automatic HTTPS via Let's Encrypt
+# ============================================
+
+# Opção 1: Domínios separados (Cloudflare - RECOMENDADO)
+{$DOMAIN} {
+    encode gzip
+    
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+    
+    # Frontend
+    reverse_proxy digiforge-frontend:80
+}
+
+{$API_DOMAIN} {
+    encode gzip
+    
+    # Security headers
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+    
+    # Backend API
+    reverse_proxy digiforge-backend:8001
+}
+
+# Opção 2: DuckDNS (mesmo domínio, path-based routing)
+# Se usares DuckDNS, comenta tudo acima e descomenta abaixo:
+#
+# {$DOMAIN} {
+#     encode gzip
+#     
+#     header {
+#         X-Content-Type-Options "nosniff"
+#         X-Frame-Options "SAMEORIGIN"
+#         X-XSS-Protection "1; mode=block"
+#         -Server
+#     }
+#     
+#     # API routes
+#     handle /api/* {
+#         reverse_proxy digiforge-backend:8001
+#     }
+#     
+#     # Frontend (default)
+#     handle {
+#         reverse_proxy digiforge-frontend:80
+#     }
+# }

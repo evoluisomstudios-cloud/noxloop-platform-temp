@@ -1,0 +1,148 @@
+<analysis>**original_problem_statement:**
+O utilizador solicitou inicialmente a criação de uma aplicação SaaS completa para gerar e vender produtos digitais com IA. Os requisitos incluíam um backend escalável, faturação com Stripe, autenticação (JWT e Google), integração com OpenAI e um design premium.
+
+Posteriormente, o pedido principal evoluiu para tornar a aplicação **100% self-hosted e independente da plataforma Emergent**.
+
+O pedido mais recente é uma grande atualização (v2) da base de código self-hosted existente, com os seguintes requisitos-chave:
+1.  **Backoffice de Admin:** Para gestão de utilizadores, templates de prompts e planos.
+2.  **Multi-Tenant Light:** Introdução de Workspaces/Organizações com papéis (owner, admin, member).
+3.  **Promo / Offer Builder:** Uma nova funcionalidade central para gerar pacotes de marketing (landing pages, anúncios, emails).
+4.  **Integração com Cluster Local:** Suporte para múltiplos providers de IA (LLM local, OpenAI, mock), um cliente RAG opcional e webhooks para n8n, tudo configurável via .
+5.  **Faturação Opcional:** A integração com Stripe deve ser desativada por defeito e ativada através de uma flag.
+6.  **Arquitetura:** Migrar a base de dados de MongoDB para **PostgreSQL**, gerida através de , e adicionar um sistema de migrações (ex: Alembic).
+7.  **Entregáveis:** Código-fonte atualizado, , documentação de self-hosting e um push final para o repositório GitHub do utilizador.
+
+**User's preferred language**: Portuguese. The next agent MUST respond in Portuguese.
+
+**what currently exists?**
+Uma aplicação full-stack (FastAPI + React) que foi inicialmente construída na plataforma Emergent e depois refatorada para ser 100% self-hosted, usando SDKs diretos para OpenAI, Google OAuth e Stripe. A aplicação inclui  e Dockerfiles para fácil implementação. O agente iniciou a implementação das funcionalidades v2, criando uma nova estrutura de backend modular (, ), reescrevendo ,  (para adicionar PostgreSQL),  e criando novas páginas no frontend (, ). A aplicação está atualmente a meio de uma grande refatoração e não está funcional.
+
+**Last working item**:
+- **Last item agent was working:** O agente estava a implementar as funcionalidades v2. Tinha acabado de criar e reescrever vários ficheiros de backend e frontend para suportar a nova arquitetura modular, multi-tenant e a migração para PostgreSQL. O último passo planeado era atualizar o ficheiro  para adicionar os novos links de navegação para Admin e Campaigns.
+- **Status:** IN PROGRESS
+- **Agent Testing Done:** N
+- **Which testing method agent to use?** Backend testing agent. O agente deve primeiro usar comandos  para tentar iniciar os serviços e ler os logs para depurar. Assim que os serviços estiverem a correr, deve usar  para testar os novos endpoints. Após a conclusão da implementação, deve ser usado o  para testes e2e completos.
+- **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+- **Issue 1: Aplicação Quebrada Devido a Refatoração Incompleta (P0)**
+  - **Description:** O agente iniciou uma refatoração massiva para implementar as funcionalidades v2 (PostgreSQL, multi-tenancy, etc.), reescrevendo e adicionando muitos ficheiros sem testes intermédios. A aplicação está num estado não funcional. O principal bloqueador é a falta de um sistema de migração de base de dados.
+  - **Status:** IN PROGRESS
+  - **Is recurring issue?** N
+  - **Should Test frontend/backend/both after fix?** Both
+  - **Blocked on other issue:** Não.
+
+**Issues Detail:**
+- **Issue 1: Aplicação Quebrada Devido a Refatoração Incompleta**
+  - **Attempted fixes:** Nenhum. A refatoração acabou de começar.
+  - **Next debug checklist:**
+    1.  **Implementar Migrações de Base de Dados (Crítico):** Instalar  e configurar um sistema de migrações para criar o esquema da base de dados PostgreSQL. Sem isto, o backend não irá arrancar.
+    2.  **Verificar Dependências:** Garantir que o  está correto e que todas as dependências foram instaladas.
+    3.  **Depurar o Arranque:** Executar  e verificar os logs () para corrigir erros de arranque do backend, que são esperados devido à nova conexão com a DB e nova estrutura de código.
+    4.  **Finalizar a Lógica:** Implementar a lógica em falta nos novos serviços (, , etc.) e nos endpoints em .
+    5.  **Conectar o Frontend:** Garantir que os novos componentes React (, ) estão a comunicar corretamente com os novos endpoints do backend.
+  - **Why fix this issue and what will be achieved with the fix?** A correção deste problema corresponde à conclusão de todos os requisitos v2 do utilizador, resultando numa aplicação SaaS modular, multi-tenant e pronta para produção self-hosted.
+
+**In progress Task List**:
+- **Task 1: Concluir a Implementação das Funcionalidades v2 (P0)**
+  - **Description:** Esta é a tarefa principal que engloba todas as novas funcionalidades solicitadas pelo utilizador.
+  - **Where to resume:** Começar por implementar um sistema de migrações de base de dados com **Alembic**. Depois, continuar o trabalho interrompido, que era atualizar o ficheiro  e, em seguida, implementar a lógica de backend e frontend para todas as novas funcionalidades.
+  - **What will be achieved with this?** Uma aplicação SaaS totalmente funcional e self-hosted com um backoffice de admin, multi-tenancy, um construtor de campanhas, e integrações configuráveis, a correr em PostgreSQL.
+  - **Status:** IN PROGRESS
+  - **Should Test frontend/backend/both after fix?** Both
+  - **Blocked on something:** Não.
+
+**Upcoming and Future Tasks**
+- **Implementar Migrações de Base de Dados (P0):** Configurar  para criar e gerir o esquema da base de dados PostgreSQL.
+- **Concluir Backoffice de Admin (P1):** Finalizar a UI do  e conectá-la aos endpoints do backend para gestão de utilizadores, templates e planos.
+- **Concluir Multi-Tenant (P1):** Adaptar todo o frontend e os endpoints de CRUD para operarem dentro do contexto de um workspace.
+- **Concluir Campaign Builder (P1):** Construir o wizard na UI e a lógica de backend para gerar e exportar os pacotes de marketing.
+- **Finalizar Integrações de Cluster (P2):** Implementar a lógica nos serviços (, , ) para suportar as diferentes configurações do , incluindo fallbacks.
+- **Atualizar a Documentação (P2):** Atualizar  e  para refletir a nova arquitetura, variáveis de ambiente e processo de setup.
+- **Testes Finais e Push (P2):** Realizar um teste completo  e garantir que a aplicação funciona de ponta a ponta antes de instruir o utilizador a fazer o push para o GitHub.
+
+**Completed work in this session**
+- **Criação da Aplicação SaaS Inicial:** Construída uma plataforma full-stack (FastAPI/React) para geração de produtos digitais.
+- **Refatoração para Self-Hosting:** A aplicação foi tornada 100% independente da plataforma Emergent, substituindo integrações por SDKs diretos (OpenAI, Google OAuth, Stripe) e criando a configuração Docker (, Dockerfiles).
+- **Correção de Performance:** Otimizada uma query N+1 no endpoint de analytics usando um pipeline de agregação do MongoDB.
+- **Início da Refatoração v2:** Criada a nova estrutura de ficheiros para backend e frontend para suportar as novas funcionalidades.
+
+**Earlier issues found/mentioned but not fixed**
+- **Push para o GitHub via CLI:** O agente tentou repetidamente fazer  via linha de comandos, o que falhou por falta de autenticação. A solução é instruir o utilizador a usar o botão Save to GitHub na interface do Emergent. O próximo agente não deve tentar usar .
+
+**Known issue recurrence from previous fork**
+- None.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+- **Backend:** FastAPI
+- **Frontend:** React, TailwindCSS, Shadcn/UI
+- **Base de Dados:** Migração de MongoDB para **PostgreSQL**
+- **Containerização:** Docker, Docker Compose
+- **Arquitetura:** Modular, Multi-Tenant, Backoffice de Admin, Providers de serviços configuráveis.
+
+**key DB schema**
+A base de dados está a ser migrada para PostgreSQL. O novo esquema deverá incluir tabelas para: , ,  (com roles),  (ligadas a um workspace),  (geridos pelo admin), e . A configuração das tabelas e migrações via  ainda precisa de ser feita.
+
+**changes in tech stack**
+- **Base de Dados:** Migração em curso de **MongoDB** para **PostgreSQL**.
+
+**All files of reference**
+- : O novo coração do backend, precisa de ser depurado e finalizado.
+- : Contém o novo serviço .
+- : Contém todas as novas flags de configuração para v2.
+- : Diretório com a nova lógica de negócio modular.
+- : Define os modelos de dados para a nova arquitetura.
+- : Precisa de ser completamente atualizado.
+
+**Critical Info for New Agent**
+- **FOCO NA CONTINUIDADE:** A tua tarefa é continuar a refatoração v2 da aplicação self-hosted existente. Não cries um novo projeto nem reintroduzas dependências da plataforma Emergent.
+- **MIGRAÇÃO PARA POSTGRES É PRIORIDADE:** A aplicação não irá funcionar até que configures um sistema de migrações (ex: **Alembic**) para criar as tabelas na base de dados PostgreSQL definida no . Este deve ser o teu primeiro passo técnico.
+- **TESTES INCREMENTAIS:** A aplicação está atualmente quebrada. Trabalha em pequenas etapas, testando o arranque dos serviços ( e ) frequentemente para depurar os problemas um a um.
+- **NÃO FAÇAS PUSH VIA GIT:** Não tentes usar . Informa o utilizador para usar o botão Save to GitHub da interface do Emergent no final.
+- **CUMPRIR OS REQUISITOS v2:** O teu objetivo final é entregar todas as funcionalidades solicitadas na última mensagem do utilizador, incluindo o backoffice, multi-tenancy, campaign builder, e as integrações com o cluster local.
+
+**documents and test reports created in this job**
+- 
+- 
+- 
+- 
+- 
+- 
+
+**Last 10 User Messages and any pending HUMAN messages**
+10. **User**: Pede para evoluir a aplicação self-hosted existente com um grande conjunto de novas funcionalidades v2 (Admin, Multi-tenant, Campaign Builder, etc.), fornecendo regras estritas e entregáveis. **(Esta é a tarefa atual e de prioridade máxima)**.
+9. **User**: Confirma que o GitHub está conectado e pede para o agente fazer push.
+8. **User**: Pede para o agente fazer push do projeto completo para um repositório GitHub específico.
+7. **User**: Pede um link de download direto para o ficheiro  exportado.
+6. **User**: Autoriza o início da refatoração para tornar o projeto 100% independente.
+5. **User**: Pergunta se o código pode ser exportado e executado de forma totalmente independente da Emergent.
+4. **User**: Acusa a receção do relatório de prontidão para deploy.
+3. **User**: Pede para chamar o Deployment Agent e correr um Health Check.
+2. **User**: Mensagem interna para o agente ignorar problemas de crédito de LLM e continuar.
+1. **User**: (User message anterior ao #2) Pede para o agente finalizar o projeto.
+
+**Project Health Check:**
+- **Broken:** A aplicação está completamente quebrada devido a uma refatoração em andamento. A mudança para PostgreSQL está incompleta, faltando o passo crítico das migrações da base de dados.
+- **Mocked:** A arquitetura prevê um provider de LLM mock, mas a sua implementação ainda não foi finalizada.
+
+**3rd Party Integrations**
+- **OpenAI API**: Requer chave de utilizador ().
+- **Google OAuth**: Requer credenciais de utilizador (, ).
+- **Stripe API**: Opcional. Requer chave de utilizador ().
+- **LLM Local (novo)**: A ser integrado via .
+- **RAG API Local (novo)**: A ser integrado via .
+- **N8N Webhook (novo)**: A ser integrado via .
+
+**Testing status**
+- **Testing agent used after significant changes:** SIM, mas antes da refatoração v2 atual.
+- **Test files created:** Nenhum.
+- **Known regressions:** Toda a aplicação é considerada como tendo regredido, pois está num estado não funcional.
+
+**Credentials to test flow:**
+- As credenciais de teste (, , etc.) devem ser configuradas no ficheiro  local, a partir do , para permitir a depuração.
+
+**What agent forgot to execute**
+- **Configurar Migrações de Base de Dados:** O agente atualizou o  para usar PostgreSQL mas esqueceu-se completamente de implementar um sistema de migração como o **Alembic**. Sem isto, o backend não consegue criar as tabelas necessárias e não irá arrancar. Esta é a omissão mais crítica a ser corrigida.</analysis>

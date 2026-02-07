@@ -1,0 +1,98 @@
+version: '3.8'
+
+# ============================================
+# DigiForge Production Stack (sem reverse proxy)
+# Use com Nginx externo instalado no host
+# Deploy: docker compose -f docker-compose.nginx.yml up -d
+# ============================================
+
+services:
+  # ========== DATABASE ==========
+  mongodb:
+    image: mongo:6.0
+    container_name: digiforge-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=digiforge
+    networks:
+      - digiforge-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/digiforge --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # ========== BACKEND ==========
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: digiforge-backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - backend_exports:/app/exports
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+      - DB_NAME=digiforge
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@localhost}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - LLM_PROVIDER=${LLM_PROVIDER:-mock}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - LOCAL_LLM_BASE_URL=${LOCAL_LLM_BASE_URL:-}
+      - LOCAL_LLM_API_KEY=${LOCAL_LLM_API_KEY:-}
+      - LOCAL_LLM_MODEL=${LOCAL_LLM_MODEL:-}
+      - RAG_ENABLED=${RAG_ENABLED:-false}
+      - RAG_BASE_URL=${RAG_BASE_URL:-}
+      - N8N_WEBHOOK_ENABLED=${N8N_WEBHOOK_ENABLED:-false}
+      - N8N_WEBHOOK_URL=${N8N_WEBHOOK_URL:-}
+      - STRIPE_ENABLED=${STRIPE_ENABLED:-false}
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - CORS_ORIGINS=*
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - digiforge-network
+    healthcheck:
+      test: curl -f http://localhost:8001/api/status || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ========== FRONTEND ==========
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL:-https://api.localhost}
+    container_name: digiforge-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - backend
+    networks:
+      - digiforge-network
+
+# ========== VOLUMES ==========
+volumes:
+  mongodb_data:
+    driver: local
+  backend_exports:
+    driver: local
+
+# ========== NETWORKS ==========
+networks:
+  digiforge-network:
+    driver: bridge
