@@ -1590,7 +1590,6 @@ async def serve_media(asset_id: str, user: dict = Depends(get_current_user)):
         filename=asset["original_filename"]
     )
 
-        "description": template_data.description,
         "category": template_data.category,
         "prompt_template": template_data.prompt_template,
         "variables": template_data.variables,
