@@ -21,7 +21,7 @@ SMTP_PORT = int(os.environ.get('SMTP_PORT', '587'))
 SMTP_USER = os.environ.get('SMTP_USER', '')
 SMTP_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
 SMTP_FROM_EMAIL = os.environ.get('SMTP_FROM_EMAIL', SMTP_USER)
-SMTP_FROM_NAME = os.environ.get('SMTP_FROM_NAME', 'DigiForge')
+SMTP_FROM_NAME = os.environ.get('SMTP_FROM_NAME', 'NOXLOOP')
 SMTP_USE_TLS = os.environ.get('SMTP_USE_TLS', 'true').lower() == 'true'
 
 APP_URL = os.environ.get('APP_URL', 'https://localhost:3000')
@@ -106,10 +106,10 @@ class EmailService:
 <body>
     <div class="container">
         <div class="card">
-            <div class="logo">DigiForge</div>
+            <div class="logo">NOXLOOP</div>
             {content}
             <div class="footer">
-                <p>DigiForge - AI-Powered Digital Products</p>
+                <p>NOXLOOP - AI-Powered Digital Products</p>
                 <p>This is an automated message. Please do not reply directly to this email.</p>
             </div>
         </div>
@@ -123,7 +123,7 @@ class EmailService:
     async def send_welcome_email(self, to_email: str, name: str) -> bool:
         """Send welcome email after registration"""
         content = f"""
-<h1>Welcome to DigiForge, {name}!</h1>
+<h1>Welcome to NOXLOOP, {name}!</h1>
 <p>Your account has been created successfully. You're ready to start creating AI-powered digital products.</p>
 
 <div class="highlight">
@@ -143,9 +143,9 @@ class EmailService:
 """
         return self._send_email(
             to_email,
-            "Welcome to DigiForge! 🚀",
+            "Welcome to NOXLOOP! 🚀",
             self._base_template(content),
-            f"Welcome to DigiForge, {name}! Your account is ready. Visit {APP_URL}/dashboard to get started."
+            f"Welcome to NOXLOOP, {name}! Your account is ready. Visit {APP_URL}/dashboard to get started."
         )
     
     async def send_payment_success_email(
@@ -210,7 +210,7 @@ class EmailService:
 """
         return self._send_email(
             to_email,
-            "Reset Your Password - DigiForge",
+            "Reset Your Password - NOXLOOP",
             self._base_template(content),
             f"Reset your password: {reset_url} (expires in 1 hour)"
         )
@@ -220,7 +220,7 @@ class EmailService:
         content = f"""
 <h1>Running Low on Credits</h1>
 <p>Hi {name},</p>
-<p>You have <strong>{remaining_credits} credits</strong> remaining in your DigiForge account.</p>
+<p>You have <strong>{remaining_credits} credits</strong> remaining in your NOXLOOP account.</p>
 
 <p>To continue creating products without interruption, consider upgrading your plan.</p>
 
@@ -240,7 +240,7 @@ class EmailService:
         content = f"""
 <h1>Subscription Cancelled</h1>
 <p>Hi {name},</p>
-<p>Your DigiForge subscription has been cancelled.</p>
+<p>Your NOXLOOP subscription has been cancelled.</p>
 
 <div class="highlight">
     <p>Your current plan will remain active until: <strong>{end_date}</strong></p>
@@ -255,7 +255,7 @@ class EmailService:
 """
         return self._send_email(
             to_email,
-            "Subscription Cancelled - DigiForge",
+            "Subscription Cancelled - NOXLOOP",
             self._base_template(content),
             f"Your subscription has been cancelled. Active until {end_date}."
         )

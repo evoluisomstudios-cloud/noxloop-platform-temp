@@ -1,5 +1,5 @@
 """
-DigiForge - AI Digital Product Platform
+# NOXLOOP - AI Digital Product Platform
 100% Self-Hosted SaaS Application
 
 Version: 2.0.0
