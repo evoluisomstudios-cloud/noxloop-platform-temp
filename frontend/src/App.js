@@ -144,9 +144,9 @@ const AppRouter = ({ user, loading, login, logout, refreshUser }) => {
         </ProtectedRoute>
       } />
       
-      {/* Admin Route */}
+      {/* Admin Route - Only for is_admin=true users */}
       <Route path="/admin" element={
-        <ProtectedRoute user={user} loading={loading}>
+        <ProtectedRoute user={user} loading={loading} requireAdmin={true}>
           <AdminPage user={user} onLogout={logout} />
         </ProtectedRoute>
       } />
