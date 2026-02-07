@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import AdminMediaPage from "./AdminMediaPage";
+import AdminPromoPage from "./AdminPromoPage";
 import { 
   Users, 
   Package, 
@@ -278,6 +279,13 @@ export const AdminPage = ({ user, onLogout }) => {
 
         {/* Media Tab */}
         <TabsContent value="media">
+
+
+        {/* Promo Tab */}
+        <TabsContent value="promo">
+          <AdminPromoPage user={user} />
+        </TabsContent>
+
           <AdminMediaPage user={user} />
         </TabsContent>
 
