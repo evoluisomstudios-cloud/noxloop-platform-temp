@@ -30,12 +30,13 @@ from services import payment_service, email_service, security_service
 from models.schemas import (
     UserCreate, UserLogin, UserResponse, UserWithWorkspaces,
     WorkspaceCreate, WorkspaceUpdate, WorkspaceResponse, WorkspaceMember, WorkspaceInvite,
-    ProductCreate, ProductUpdate, ProductResponse,
+    ProductCreate, ProductUpdate, ProductResponse, ProductStatus,
     CampaignCreate, CampaignResponse,
     TemplateCreate, TemplateUpdate, TemplateResponse,
     PlanConfig, PlanUpdate, PlanType, FeatureFlag, UserRole,
     CheckoutRequest, SubscriptionRequest, GoogleAuthRequest,
-    AdminStats, SystemStatus, UsageRecord
+    AdminStats, SystemStatus, UsageRecord,
+    PurchaseCreate, PurchaseResponse
 )
 
 # ==================== DATABASE ====================
